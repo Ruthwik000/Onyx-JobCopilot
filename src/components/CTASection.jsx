@@ -51,20 +51,20 @@ export default function CTASection() {
           className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
         >
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            className="bg-gradient-to-r from-violet-600 to-violet-700 text-white font-bold uppercase 
-              tracking-widest rounded-full px-12 py-4 text-sm transition-all duration-300 
-              hover:shadow-2xl hover:shadow-violet-500/50 cursor-pointer"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-violet-600 hover:bg-violet-500 text-white font-semibold uppercase 
+              tracking-wide rounded-full px-12 py-4 text-sm transition-all duration-300 
+              shadow-lg shadow-violet-600/30 hover:shadow-violet-500/50 cursor-pointer"
           >
             Start Your Sprint
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            className="border border-white/20 text-white font-bold uppercase tracking-widest 
-              rounded-full px-12 py-4 text-sm hover:border-violet-500/60 hover:bg-violet-500/10 
-              transition-all duration-300 cursor-pointer"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="border-2 border-violet-500/30 text-violet-200 font-semibold uppercase tracking-wide 
+              rounded-full px-12 py-4 text-sm hover:border-violet-400/50 hover:bg-violet-500/5 
+              hover:text-white transition-all duration-300 cursor-pointer"
           >
             Talk to Sales
           </motion.button>

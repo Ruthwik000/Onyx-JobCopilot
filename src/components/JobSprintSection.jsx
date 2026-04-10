@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { motion, useScroll, useTransform, useInView } from 'framer-motion'
+import { motion, useScroll, useTransform, useSpring, useInView, AnimatePresence } from 'framer-motion'
 import HumanCharacter from './HumanCharacter'
 
 const milestones = [
@@ -50,13 +50,17 @@ const milestones = [
   },
 ]
 
-// Card positions for zigzag layout — increased vertical spacing
+// Desktop card positions — zigzag with generous spacing
 const cardPositions = [
   { left: '2%', top: 0 },
-  { left: '52%', top: 220 },
-  { left: '2%', top: 440 },
-  { left: '52%', top: 660 },
+  { left: '52%', top: 280 },
+  { left: '2%', top: 560 },
+  { left: '52%', top: 840 },
 ]
+
+// Where the character sits initially: top-right corner of Card 1
+// Card 1 is at left:2%, top:0, width:46%. So right edge = ~46%, sitting on top edge
+const SITTING_POS = { x: '40%', y: -55 }
 
 function MilestoneCard({ milestone, position, isActive, index }) {
   return (
@@ -72,7 +76,7 @@ function MilestoneCard({ milestone, position, isActive, index }) {
         borderColor: 'rgba(124,58,237,0.15)',
         boxShadow: '0 0 0px rgba(124,58,237,0)',
       }}
-      className="glass-card rounded-2xl p-7 md:p-8 cursor-default relative group 
+      className="mentor-card rounded-2xl p-7 md:p-8 cursor-default relative group 
         hover:border-violet-500/40 transition-all duration-500"
       style={{
         position: 'absolute',
@@ -101,16 +105,7 @@ function MilestoneCard({ milestone, position, isActive, index }) {
         {milestone.tag}
       </span>
 
-      {/* Checkmark */}
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: isActive ? 1 : 0 }}
-        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-green-500 
-          flex items-center justify-center shadow-lg shadow-green-500/40"
-      >
-        <span className="text-white text-xs font-bold">✓</span>
-      </motion.div>
+
     </motion.div>
   )
 }
@@ -126,21 +121,61 @@ export default function JobSprintSection() {
   const [active, setActive] = useState({ 0: false, 1: false, 2: false, 3: false })
   const [isWalking, setIsWalking] = useState(false)
   const [isAtEnd, setIsAtEnd] = useState(false)
+  const [isSitting, setIsSitting] = useState(true)     // starts sitting
 
-  // Character follows the SVG path progress  
-  const pathProgress = useTransform(scrollYProgress, [0.15, 0.85], [0, 1])
+  // Use refs to avoid stale closures in scroll listener
+  const hasJumpedRef = useRef(false)
+  const jumpPhaseRef = useRef('idle')  // 'idle' | 'jumping' | 'walking'
+
+  // Smooth scroll progress with physics — buttery motion
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 50,
+    damping: 18,
+    mass: 0.6,
+  })
+
+  // Map scroll to path progress — character starts moving after section enters view
+  const pathProgress = useTransform(smoothProgress, [0.22, 0.82], [0, 1])
 
   useEffect(() => {
     let walkTimeout
     const unsub = pathProgress.on('change', (v) => {
-      setIsWalking(true)
-      clearTimeout(walkTimeout)
-      walkTimeout = setTimeout(() => setIsWalking(false), 200)
+      const clampedV = Math.max(0, Math.min(1, v))
 
-      if (v > 0.1) setActive(prev => ({ ...prev, 0: true }))
-      if (v > 0.35) setActive(prev => ({ ...prev, 1: true }))
-      if (v > 0.6) setActive(prev => ({ ...prev, 2: true }))
-      if (v > 0.85) {
+      // Trigger the jump when scroll begins (progress > 0)
+      if (clampedV > 0.02 && !hasJumpedRef.current) {
+        hasJumpedRef.current = true
+        jumpPhaseRef.current = 'jumping'
+        // After jump animation completes, switch to walking
+        setTimeout(() => {
+          setIsSitting(false)
+          jumpPhaseRef.current = 'walking'
+        }, 450)
+      }
+
+      // If user scrolls back to the very top, sit back down
+      if (clampedV <= 0.005 && hasJumpedRef.current) {
+        hasJumpedRef.current = false
+        jumpPhaseRef.current = 'idle'
+        setIsSitting(true)
+        setIsWalking(false)
+        setIsAtEnd(false)
+        setActive({ 0: false, 1: false, 2: false, 3: false })
+        return
+      }
+
+      // Walking detection — show walk animation while scrolling
+      if (jumpPhaseRef.current === 'walking') {
+        setIsWalking(true)
+        clearTimeout(walkTimeout)
+        walkTimeout = setTimeout(() => setIsWalking(false), 250)
+      }
+
+      // Activate milestone cards progressively
+      if (clampedV > 0.05) setActive(prev => ({ ...prev, 0: true }))
+      if (clampedV > 0.3)  setActive(prev => ({ ...prev, 1: true }))
+      if (clampedV > 0.55) setActive(prev => ({ ...prev, 2: true }))
+      if (clampedV > 0.8) {
         setActive(prev => ({ ...prev, 3: true }))
         setIsAtEnd(true)
       }
@@ -151,9 +186,16 @@ export default function JobSprintSection() {
     }
   }, [pathProgress])
 
-  // Animate the character position along the path
-  const charX = useTransform(pathProgress, [0, 0.25, 0.5, 0.75, 1], ['5%', '55%', '10%', '55%', '55%'])
-  const charY = useTransform(pathProgress, [0, 0.25, 0.5, 0.75, 1], [30, 260, 480, 680, 780])
+  // Walking path X/Y positions — follows the S-curve zigzag between cards
+  // Starts from sitting position, then walks along the dashed path
+  const walkX = useTransform(pathProgress,
+    [0,    0.05, 0.15, 0.30, 0.45, 0.55, 0.70, 0.85, 1.0],
+    ['40%','35%','45%','58%','35%','10%','20%','56%','56%']
+  )
+  const walkY = useTransform(pathProgress,
+    [0,    0.05, 0.15, 0.30, 0.45, 0.55, 0.70, 0.85, 1.0],
+    [-55,  20,   100,  310,  440,  570,  680,  880,  970]
+  )
 
   return (
     <section id="how-it-works" ref={sectionRef} className="relative py-28 md:py-40 px-8 md:px-16 lg:px-20 bg-[#08080F] overflow-hidden">
@@ -187,11 +229,11 @@ export default function JobSprintSection() {
         </motion.p>
 
         {/* ===== DESKTOP ZIGZAG LAYOUT ===== */}
-        <div className="hidden md:block relative mt-20" style={{ height: '920px' }}>
+        <div className="hidden md:block relative mt-20" style={{ height: '1120px' }}>
           {/* Curved dashed SVG path connecting cards in zigzag */}
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none"
-            viewBox="0 0 800 920"
+            viewBox="0 0 800 1120"
             preserveAspectRatio="none"
             fill="none"
           >
@@ -202,9 +244,9 @@ export default function JobSprintSection() {
                 <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.4" />
               </linearGradient>
             </defs>
-            {/* S-curve path from card 1 → card 2 → card 3 → card 4 */}
+            {/* S-curve path */}
             <motion.path
-              d="M 200 120 C 300 120, 500 120, 560 240 C 620 360, 400 380, 200 460 C 80 510, 80 540, 200 580 C 350 630, 500 640, 560 700 C 620 760, 620 820, 560 880"
+              d="M 370 80 C 420 80, 520 120, 560 280 C 600 440, 400 480, 200 560 C 60 620, 60 680, 200 720 C 380 780, 520 800, 560 880 C 600 960, 580 1040, 540 1080"
               stroke="url(#pathGrad)"
               strokeWidth="2.5"
               strokeDasharray="10 8"
@@ -214,32 +256,79 @@ export default function JobSprintSection() {
               transition={{ duration: 2, ease: 'easeInOut' }}
             />
             {/* Connector dots at path junctions */}
-            <circle cx="560" cy="240" r="6" fill="#7C3AED" opacity="0.8">
+            <circle cx="560" cy="280" r="6" fill="#7C3AED" opacity="0.8">
               <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
             </circle>
-            <circle cx="200" cy="460" r="6" fill="#8B5CF6" opacity="0.8">
+            <circle cx="200" cy="560" r="6" fill="#8B5CF6" opacity="0.8">
               <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" begin="0.5s" repeatCount="indefinite" />
             </circle>
-            <circle cx="560" cy="700" r="6" fill="#7C3AED" opacity="0.8">
+            <circle cx="560" cy="880" r="6" fill="#7C3AED" opacity="0.8">
               <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" begin="1s" repeatCount="indefinite" />
             </circle>
             {/* Moving particle along the path */}
             <circle r="4" fill="#A78BFA" opacity="0.9">
               <animateMotion
-                dur="5s"
+                dur="6s"
                 repeatCount="indefinite"
-                path="M 200 120 C 300 120, 500 120, 560 240 C 620 360, 400 380, 200 460 C 80 510, 80 540, 200 580 C 350 630, 500 640, 560 700 C 620 760, 620 820, 560 880"
+                path="M 370 80 C 420 80, 520 120, 560 280 C 600 440, 400 480, 200 560 C 60 620, 60 680, 200 720 C 380 780, 520 800, 560 880 C 600 960, 580 1040, 540 1080"
               />
             </circle>
           </svg>
 
-          {/* Human Character */}
-          <motion.div
-            className="absolute z-20 hidden lg:block"
-            style={{ left: charX, top: charY }}
-          >
-            <HumanCharacter isWalking={isWalking} isAtEnd={isAtEnd} />
-          </motion.div>
+          {/* ===== HUMAN CHARACTER ===== */}
+          <AnimatePresence mode="wait">
+            {isSitting ? (
+              /* SITTING — perched on top-right of Card 1 */
+              <motion.div
+                key="sitting"
+                className="absolute z-20 hidden lg:block"
+                style={{
+                  left: SITTING_POS.x,
+                  top: SITTING_POS.y,
+                }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ 
+                  opacity: 1, 
+                  y: [0, -4, 0],  // gentle idle bob
+                }}
+                transition={{
+                  opacity: { duration: 0.5 },
+                  y: { duration: 2.5, repeat: Infinity, ease: 'easeInOut' },
+                }}
+                exit={{
+                  y: -50,           // jump UP
+                  opacity: 0,
+                  scale: 0.9,
+                  transition: { duration: 0.4, ease: 'easeOut' },
+                }}
+              >
+                <HumanCharacter isSitting={true} isWalking={false} isAtEnd={false} />
+              </motion.div>
+            ) : (
+              /* WALKING — follows the path */
+              <motion.div
+                key="walking"
+                className="absolute z-20 hidden lg:block"
+                style={{
+                  left: walkX,
+                  top: walkY,
+                  marginLeft: '-40px',
+                  marginTop: '-60px',
+                }}
+                initial={{ opacity: 0, y: -30, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.5,
+                  ease: 'easeOut',
+                  type: 'spring',
+                  stiffness: 200,
+                  damping: 15,
+                }}
+              >
+                <HumanCharacter isSitting={false} isWalking={isWalking} isAtEnd={isAtEnd} />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Milestone Cards */}
           {milestones.map((m, i) => (
@@ -280,7 +369,7 @@ export default function JobSprintSection() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="glass-card rounded-2xl p-7 relative"
+                className="mentor-card rounded-2xl p-7 relative"
               >
                 <div className="flex items-start gap-3 mb-4">
                   <span className="text-4xl font-black text-violet-500/15 select-none leading-none">
@@ -296,15 +385,7 @@ export default function JobSprintSection() {
                   bg-violet-500/20 text-violet-300 border border-violet-500/30">
                   {m.tag}
                 </span>
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: active[i] ? 1 : 0 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-green-500 
-                    flex items-center justify-center shadow-lg shadow-green-500/40"
-                >
-                  <span className="text-white text-xs font-bold">✓</span>
-                </motion.div>
+
               </motion.div>
             ))}
           </div>

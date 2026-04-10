@@ -106,6 +106,12 @@
   animation: legSwingRight 0.6s ease-in-out infinite;
 }
 
+/* ======== CHARACTER GLOW PULSE ======== */
+@keyframes charPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
 /* ======== SCAN ANIMATION ======== */
 @keyframes scanBeam {
   0%, 100% { transform: translateY(4px); }
@@ -137,6 +143,41 @@
 @keyframes pulseDot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(1.5); }
+}
+
+/* ======== MENTOR CARD FLOAT ======== */
+@keyframes mentorFloat {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.mentor-card {
+  background: rgba(14, 14, 14, 0.61);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.35s ease;
+}
+
+/* Float animation only for mentor section cards */
+#mentors .mentor-card {
+  animation: mentorFloat 4s ease-in-out infinite;
+}
+#mentors .mentor-card:nth-child(2) {
+  animation-delay: 0.6s;
+}
+#mentors .mentor-card:nth-child(3) {
+  animation-delay: 1.2s;
+}
+#mentors .mentor-card:nth-child(4) {
+  animation-delay: 1.8s;
+}
+
+.mentor-card:hover {
+  background: rgba(30, 30, 30, 0.7);
+  border-color: rgba(167, 139, 250, 0.3);
+  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.12), 0 0 60px rgba(124, 58, 237, 0.06);
 }
 
 /* ======== GROW BAR ======== */

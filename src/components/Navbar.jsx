@@ -43,14 +43,21 @@ export default function Navbar() {
         </div>
 
         {/* Right */}
-        <div className="hidden md:flex items-center gap-5 flex-shrink-0">
-          <a href="#" className="text-zinc-400 hover:text-white text-sm transition-colors">Login</a>
+        <div className="hidden md:flex items-center gap-4 flex-shrink-0">
+          <a 
+            href="#" 
+            className="text-zinc-400 hover:text-white text-sm font-medium transition-colors px-4 py-2"
+          >
+            Login
+          </a>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            className="bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-500 hover:to-violet-600 
-              text-white text-sm font-semibold rounded-full px-5 py-2.5 transition-all duration-300 
-              hover:shadow-lg hover:shadow-violet-500/40 cursor-pointer"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="border-2 border-violet-500/40 bg-[#1A1A2E]/50 backdrop-blur-sm text-violet-300 
+              hover:text-violet-200 hover:border-violet-400/60 hover:bg-[#1A1A2E]/70 
+              text-sm font-semibold rounded-full px-8 py-3 transition-all duration-300 
+              shadow-[0_0_20px_rgba(139,92,246,0.15)] hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] 
+              cursor-pointer"
           >
             Get Started
           </motion.button>
@@ -93,10 +100,12 @@ export default function Navbar() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: navLinks.length * 0.1 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-              className="bg-gradient-to-r from-violet-600 to-violet-700 text-white font-semibold 
-                rounded-full px-8 py-3 mt-4 cursor-pointer"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="border-2 border-violet-500/40 bg-[#1A1A2E]/50 backdrop-blur-sm text-violet-300 
+                hover:text-violet-200 hover:border-violet-400/60 hover:bg-[#1A1A2E]/70 
+                font-semibold rounded-full px-10 py-3.5 mt-4 cursor-pointer transition-all duration-300
+                shadow-[0_0_20px_rgba(139,92,246,0.15)] hover:shadow-[0_0_30px_rgba(139,92,246,0.3)]"
             >
               Get Started
             </motion.button>

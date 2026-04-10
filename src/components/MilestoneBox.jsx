@@ -91,7 +91,7 @@ export default function MilestoneBox({ number, title, subtitle, tag, isActive, p
         scale: 1,
       }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="glass-card rounded-2xl p-5 cursor-default relative"
+      className="mentor-card rounded-2xl p-5 cursor-default relative"
       style={position ? { position: 'absolute', left: position, top: 0, width: '176px' } : {}}
     >
       {/* Ghost number */}
@@ -113,17 +113,6 @@ export default function MilestoneBox({ number, title, subtitle, tag, isActive, p
         bg-violet-500/20 text-violet-300 border border-violet-500/30">
         {tag}
       </span>
-
-      {/* Checkmark */}
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: isActive ? 1 : 0 }}
-        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-        className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-green-500 
-          flex items-center justify-center shadow-lg shadow-green-500/40"
-      >
-        <span className="text-white text-xs font-bold">✓</span>
-      </motion.div>
     </motion.div>
   )
 }

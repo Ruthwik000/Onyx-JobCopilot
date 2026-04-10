@@ -54,31 +54,57 @@ const features = [
 
 const containerVar = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } }
+  visible: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
 }
 
 const cardVar = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+  hidden: { opacity: 0, y: 60, scale: 0.9 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: { 
+      duration: 0.7, 
+      ease: [0.25, 0.46, 0.45, 0.94],
+      scale: { duration: 0.5 }
+    } 
+  }
 }
 
 export default function FeaturesSection() {
   return (
-    <section id="features" className="py-28 md:py-36 px-8 md:px-16 lg:px-20 bg-[#08080F]">
-      <div className="max-w-7xl mx-auto">
+    <section id="features" className="py-28 md:py-36 px-8 md:px-16 lg:px-20 bg-[#08080F] relative overflow-hidden">
+      {/* Animated background elements */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 0.05, scale: 1 }}
+        transition={{ duration: 1.2 }}
+        viewport={{ once: true }}
+        className="absolute top-20 left-10 w-96 h-96 rounded-full bg-violet-500 blur-[120px]"
+      />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 0.03, scale: 1 }}
+        transition={{ duration: 1.2, delay: 0.3 }}
+        viewport={{ once: true }}
+        className="absolute bottom-20 right-10 w-80 h-80 rounded-full bg-violet-700 blur-[100px]"
+      />
+
+      <div className="max-w-7xl mx-auto relative z-10">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6 }}
           className="text-xs text-violet-400 uppercase tracking-widest text-center mb-4"
         >
           What We Do
         </motion.p>
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.1, duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center"
         >
           Everything You Need to Land the Job
@@ -87,7 +113,7 @@ export default function FeaturesSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
           className="text-zinc-400 text-center mt-5 mb-20 max-w-xl mx-auto text-base leading-relaxed"
         >
           Four pillars. One platform. Zero friction between you and your next career move.
@@ -104,16 +130,40 @@ export default function FeaturesSection() {
             <motion.div
               key={i}
               variants={cardVar}
-              whileHover={{ y: -6, scale: 1.02 }}
-              className="glass-card rounded-2xl p-8 cursor-pointer transition-all duration-300 
-                group hover:border-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/15"
+              whileHover={{ y: -8, scale: 1.03 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="mentor-card rounded-2xl p-8 cursor-pointer transition-all duration-300 
+                group hover:border-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/20 relative overflow-hidden"
             >
-              <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center mb-6 
-                group-hover:bg-violet-500/25 transition-all duration-300">
-                {f.icon}
+              {/* Card glow effect on hover */}
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                initial={false}
+              />
+              
+              <div className="relative z-10">
+                <motion.div 
+                  className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center mb-6 
+                    group-hover:bg-violet-500/25 transition-all duration-300"
+                  whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {f.icon}
+                </motion.div>
+                <h3 className="text-lg font-bold text-white mb-3 leading-snug group-hover:text-violet-200 transition-colors duration-300">
+                  {f.title}
+                </h3>
+                <p className="text-sm text-zinc-400 leading-relaxed group-hover:text-zinc-300 transition-colors duration-300">
+                  {f.body}
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-white mb-3 leading-snug">{f.title}</h3>
-              <p className="text-sm text-zinc-400 leading-relaxed">{f.body}</p>
+
+              {/* Animated corner accent */}
+              <motion.div
+                className="absolute top-0 right-0 w-20 h-20 bg-violet-500/10 blur-2xl opacity-0 group-hover:opacity-100"
+                initial={false}
+                transition={{ duration: 0.4 }}
+              />
             </motion.div>
           ))}
         </motion.div>

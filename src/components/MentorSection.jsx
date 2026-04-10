@@ -2,24 +2,29 @@ import { motion } from 'framer-motion'
 
 const mentors = [
   {
-    initials: 'MC', name: 'Marcus Chen',
+    name: 'Marcus Chen',
     role: 'Sr. Engineering Lead @ Google',
     body: 'Distributed systems expert. 200+ engineers mentored through FAANG interview loops.',
+    avatar: 'https://images.media.io/ai-images/tech-professional-avatar.png',
   },
+  
   {
-    initials: 'ER', name: 'Elena Rodriguez',
+    name: 'Elena Rodriguez',
     role: 'Principal PM @ Airbnb',
     body: 'Portfolio storytelling guru. Helps PMs craft narratives that land top-tier roles.',
+    avatar: 'https://imgs.search.brave.com/KIdelLEZZnsLYfY5IOJw76jDlZwHNusCAdieCkasj9g/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMubWVkaWEuaW8v/YWktaW1hZ2VzL3Rl/Y2gtY2FzdWFsLW1h/bGUtYXZhdGFyLnBu/Zw',
   },
   {
-    initials: 'JS', name: 'Jordan Smith',
+    name: 'Jordan Smith',
     role: 'Design Director @ Meta',
     body: 'Design systems architect. Guides designers from junior to staff-level portfolios.',
+    avatar: 'https://imgs.search.brave.com/zdAnNN2j_U-beiv-Oz7TbiMZfbSsZWuyrtLorH9Mkp4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWd2/My5mb3Rvci5jb20v/aW1hZ2VzL2dhbGxl/cnkvZ2VuZXJhdGUt/YS1yZWFsaXN0aWMt/YWktYXZhdGFyLW9m/LWEtcHJvZmVzc2lv/bmFsLXdvbWFuLWlu/LWZvdG9yLmpwZw',
   },
   {
-    initials: 'SJ', name: 'Sarah Jenkins',
+    name: 'Sarah Jenkins',
     role: 'Head of Talent @ Stripe',
     body: 'Salary negotiation expert. Average uplift: 35% above initial offer.',
+    avatar: 'https://imgs.search.brave.com/MTKOxnLyg8sN7IzkGVTehrpFWu3U5IKe_Ffwqlk2ZfY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMubWVkaWEuaW8v/YWktaW1hZ2VzL2Ny/ZWF0aXZlLXByb2Zl/c3Npb25hbC1mZW1h/bGUtYXZhdGFyLnBu/Zw',
   },
 ]
 
@@ -71,19 +76,23 @@ export default function MentorSection() {
           ))}
 
           {/* CTA */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="mt-10 flex items-center gap-4 px-6 py-4 rounded-xl border-l-4 
-              border-l-violet-500 bg-violet-500/8 border border-violet-500/20 
-              cursor-pointer hover:bg-violet-500/15 transition-all w-fit"
+          <motion.button
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            className="mt-10 flex items-center gap-4 px-10 py-4 rounded-full
+              bg-white/5 border border-white/10 backdrop-blur-md
+              cursor-pointer hover:bg-violet-500/10 hover:border-violet-500/30 
+              transition-all duration-300 group"
           >
+            <span className="text-lg font-semibold text-violet-400 group-hover:text-violet-300 transition-colors">
+              Schedule a Consultation
+            </span>
             <svg viewBox="0 0 20 20" fill="none" className="w-5 h-5 flex-shrink-0">
               <rect x="2" y="3" width="16" height="14" rx="2" stroke="#A78BFA" strokeWidth="1.5" />
               <line x1="2" y1="7" x2="18" y2="7" stroke="#A78BFA" strokeWidth="1.5" />
               <circle cx="7" cy="11" r="1" fill="#A78BFA" />
             </svg>
-            <span className="font-semibold text-violet-300">Schedule a Consultation</span>
-          </motion.div>
+          </motion.button>
         </motion.div>
 
         {/* RIGHT */}
@@ -99,13 +108,15 @@ export default function MentorSection() {
               key={i}
               variants={cardVar}
               whileHover={{ y: -4 }}
-              className="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+              className="mentor-card rounded-2xl p-6 transition-all duration-300 group cursor-pointer"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 
-                  flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                  {m.initials}
-                </div>
+              <div className="flex items-center gap-4">
+                <img 
+                  src={m.avatar} 
+                  alt={m.name}
+                  className="w-12 h-12 rounded-full object-cover flex-shrink-0 
+                    ring-2 ring-violet-500/40 group-hover:ring-violet-500/70 transition-all duration-300"
+                />
                 <div>
                   <h4 className="text-sm font-bold text-white">{m.name}</h4>
                   <p className="text-xs text-violet-400 mt-0.5">{m.role}</p>

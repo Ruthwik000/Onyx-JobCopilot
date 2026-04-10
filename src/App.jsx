@@ -15,8 +15,8 @@ export default function App() {
       <Navbar />
       <HeroSection />
       <FeaturesSection />
-      <JobSprintSection />
       <MentorSection />
+      <JobSprintSection />
       <ChatSupportSection />
       <TestimonialsSection />
       <FAQSection />

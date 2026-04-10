@@ -37,7 +37,7 @@ export default function ChatSupportSection() {
           transition={{ duration: 0.7 }}
           className="flex justify-center lg:justify-start"
         >
-          <div className="w-72 rounded-[48px] overflow-hidden border-2 border-white/10 bg-[#0F0F1A] shadow-2xl shadow-violet-900/30">
+          <div className="w-74 rounded-[40px] overflow-hidden border-5 border-white/10 bg-[#0F0F1A] shadow-2xl shadow-violet-900/30">
             {/* Header */}
             <div className="px-5 py-4 border-b border-white/5 flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-violet-600 text-white text-xs font-bold flex items-center justify-center">

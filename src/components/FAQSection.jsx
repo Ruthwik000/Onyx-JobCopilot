@@ -72,7 +72,7 @@ export default function FAQSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06 }}
-                className={`glass-card rounded-2xl overflow-hidden transition-all duration-300
+                className={`mentor-card rounded-2xl overflow-hidden transition-all duration-300
                   ${isOpen ? 'border-violet-500/40 shadow-lg shadow-violet-500/5' : 'border-violet-500/15'}`}
               >
                 <button
